@@ -45,8 +45,9 @@ CREATE_NO_WINDOW = 0x08000000
 
 # O que da pasta de origem vai para a instalação (lista branca na raiz; web/ é copiada com exclusões).
 RAIZ_ARQUIVOS_EXT = {".py", ".md"}
-RAIZ_PASTAS = ["Figuras", "Exemplos_fem"]
-RAIZ_EXTRAS = ["HEFAESTOUS.exe"]
+RAIZ_PASTAS = ["Figuras", "Exemplos_fem", "instalador"]       # instalador\versao.json = versão instalada (atualização automática)
+RAIZ_EXTRAS = ["HEFAESTOUS.exe", "Instalar_HEFAESTOUS.exe", "LEIA-ME.txt"]
+INST_EXCLUIR_DIRS = {"__pycache__", "build", "wheels"}
 WEB_EXCLUIR_DIRS = {".venv313", "node_modules", "sessions", "__pycache__", "tests", ".pytest_cache", "_legado_v1"}
 WEB_EXCLUIR_ARQ = {"web_server.log", "package.json", "package-lock.json"}
 
@@ -100,7 +101,7 @@ class Instalacao:
         for d in RAIZ_PASTAS:
             p = os.path.join(self.src, d)
             if os.path.isdir(p):
-                n += self._copytree(p, os.path.join(self.dest, d), set(), set())
+                n += self._copytree(p, os.path.join(self.dest, d), INST_EXCLUIR_DIRS if d == "instalador" else set(), {"get-pip.py"} | {os.path.basename(PY_URL)})
         n += self._copytree(os.path.join(self.src, "web"), os.path.join(self.dest, "web"), WEB_EXCLUIR_DIRS, WEB_EXCLUIR_ARQ)
         os.makedirs(os.path.join(self.dest, "web", "sessions"), exist_ok=True)
         if not os.path.exists(os.path.join(self.dest, "web", "app.py")):
