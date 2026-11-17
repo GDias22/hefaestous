@@ -1,5 +1,5 @@
 {
-  "versao": "1.1.4",
+  "versao": "1.1.5",
   "data": "2026-11-17",
-  "notas": "Instalador passa a copiar instalador\u000bersao.json (a versão instalada era lida como 0). README completo (o que é, como instalar, o que faz, como funciona). Atualização automática pela faixa no topo; logs em arquivo; conjunto montado STEP/STL/ZIP; mouse estilo SolidWorks; ícone claro."
+  "notas": "Atualização automática robusta: troca por espelhamento (robocopy /MIR), sem aninhar web\\web se um arquivo estiver aberto; verificação final e registro em erros.txt. "
 }

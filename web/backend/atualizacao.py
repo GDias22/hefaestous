@@ -98,18 +98,25 @@ echo Aguardando o HEFAESTOUS encerrar...
 tasklist /FI "PID eq {pid}" 2>nul | find "{pid}" >nul && (timeout /t 1 /nobreak >nul & goto espera)
 timeout /t 1 /nobreak >nul
 echo Substituindo os arquivos da aplicacao...
+rem preserva web\sessions (CAD gerado, sessoes) fora do caminho da troca
+if exist "web\sessions" move /y "web\sessions" "{novo_raiz}\_sessions" >nul
+rem robocopy /MIR espelha a pasta nova sobre a antiga (cria, substitui e apaga o que sobrou); NAO aninha se a antiga
+rem ainda existir por causa de um arquivo preso (foi o que gerou web\web numa versao anterior com rmdir+move).
 for %%D in (web instalador Figuras Exemplos_fem) do (
-  if exist "{novo}\%%D" (
-    if exist "%%D" (
-      rem preserva web\sessions (CAD gerado, sessoes)
-      if /i "%%D"=="web" if exist "web\sessions" move /y "web\sessions" "{novo}\web\sessions" >nul
-      rmdir /s /q "%%D"
-    )
-    move /y "{novo}\%%D" "%%D" >nul
-  )
+  if exist "{novo}\%%D" robocopy "{novo}\%%D" "%%D" /MIR /NFL /NDL /NJH /NJS /NP /R:5 /W:1 >nul
+)
+if exist "{novo_raiz}\_sessions" (
+  if exist "web\sessions" rmdir /s /q "web\sessions"
+  move /y "{novo_raiz}\_sessions" "web\sessions" >nul
 )
 for %%F in ("{novo}\*.py" "{novo}\*.exe" "{novo}\*.md" "{novo}\*.txt") do if exist %%F move /y %%F . >nul
 rmdir /s /q "{novo_raiz}" 2>nul
+if not exist "web\app.py" (
+  echo ERRO: web\app.py nao encontrado apos a troca. Execute o Instalar_HEFAESTOUS.exe novamente.
+  echo [%date% %time%] ATUALIZADOR: web\app.py ausente apos a troca para v{versao} >> erros.txt
+  pause
+  exit
+)
 if "{instalar_deps}"=="1" (
   echo Atualizando bibliotecas Python...
   "runtime\python.exe" -m pip install --quiet --disable-pip-version-check --no-warn-script-location -r "web\requirements.txt"
