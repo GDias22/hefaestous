@@ -1,5 +1,5 @@
 {
-  "versao": "1.1.0",
+  "versao": "1.1.1",
   "data": "2026-11-17",
-  "notas": "Atualização automática (verifica o repositório público e aplica com um clique); logs em arquivo (erros.txt); ícone claro; mouse estilo SolidWorks; conjunto montado STEP/STL/ZIP."
+  "notas": "Verificação de versão pela API do GitHub (sem atraso de cache). Atualização automática (verifica o repositório público e aplica com um clique); logs em arquivo (erros.txt); ícone claro; mouse estilo SolidWorks; conjunto montado STEP/STL/ZIP."
 }

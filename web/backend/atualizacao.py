@@ -27,6 +27,7 @@ from . import logs
 
 REPO = os.environ.get("HEFAESTOUS_REPO", "GDias22/hefaestous")
 URL_VERSAO = f"https://raw.githubusercontent.com/{REPO}/main/instalador/versao.json"
+URL_VERSAO_API = f"https://api.github.com/repos/{REPO}/contents/instalador/versao.json?ref=main"
 URL_ZIP = f"https://github.com/{REPO}/archive/refs/heads/main.zip"
 URL_PAGINA = f"https://github.com/{REPO}"
 BASE = logs.BASE                                   # pasta de instalação (HEFAESTOUS_HOME) ou raiz do projeto em dev
@@ -52,6 +53,24 @@ def instalacao_gerenciada():
     return os.path.exists(os.path.join(BASE, "runtime", "python.exe"))
 
 
+def _ler_versao_remota(timeout):
+    """versao.json do repositório público. 1º a API de conteúdo do GitHub (sem cache de CDN: reflete o push na hora);
+    2º o raw.githubusercontent (CDN, pode atrasar ~5 min)."""
+    import base64
+    erros = []
+    for url, decodificar in ((URL_VERSAO_API, True), (URL_VERSAO + f"?t={int(time.time())}", False)):
+        try:
+            req = urllib.request.Request(url, headers={"User-Agent": "HEFAESTOUS-updater", "Cache-Control": "no-cache", "Accept": "application/vnd.github+json"})
+            with urllib.request.urlopen(req, timeout=timeout) as r:
+                corpo = r.read()
+            if decodificar:
+                corpo = base64.b64decode(json.loads(corpo)["content"])
+            return json.loads(corpo.decode("utf-8"))
+        except Exception as ex:  # noqa: BLE001
+            erros.append(f"{type(ex).__name__}: {ex}")
+    raise RuntimeError(" | ".join(erros))
+
+
 def verificar(forcar=False, timeout=6):
     """Consulta a versão remota (cache de 1 h). Nunca lança: offline → disponivel=False com motivo."""
     with _lock:
@@ -60,9 +79,7 @@ def verificar(forcar=False, timeout=6):
     atual = versao_instalada()
     res = {"atual": atual, "remota": None, "disponivel": False, "pagina": URL_PAGINA, "pode_aplicar": instalacao_gerenciada(), "erro": None}
     try:
-        req = urllib.request.Request(URL_VERSAO + f"?t={int(time.time())}", headers={"User-Agent": "HEFAESTOUS-updater", "Cache-Control": "no-cache"})
-        with urllib.request.urlopen(req, timeout=timeout) as r:
-            d = json.loads(r.read().decode("utf-8"))
+        d = _ler_versao_remota(timeout)
         res["remota"] = d.get("versao"); res["data"] = d.get("data"); res["notas"] = d.get("notas")
         res["disponivel"] = _tupla(res["remota"]) > _tupla(atual)
     except Exception as ex:  # noqa: BLE001
