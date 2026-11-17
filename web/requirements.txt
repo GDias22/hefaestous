@@ -1,0 +1,14 @@
+numpy
+scipy
+fpdf
+pandas
+openpyxl
+nbformat
+tabulate
+fastapi
+uvicorn[standard]
+jinja2
+pydantic>=2
+python-multipart
+build123d==0.13.0
+cadquery-ocp

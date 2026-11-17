@@ -1,0 +1,181 @@
+{
+  "formato": "FEM-Planetaria",
+  "versao": 1,
+  "app": "Dimensionamento de engrenagens planetárias · FEM/Unicamp · LAMAR",
+  "salvo_em": "2026-11-13T16:38:17",
+  "nome": "Validação ISO 6336-30 Ex. 1 (par externo, z=17/103, m_n=8)",
+  "projeto": {
+    "nome": "Validação ISO 6336-30 Ex. 1 (par externo, z=17/103, m_n=8)",
+    "tipo": "trem",
+    "entrada": {
+      "n": 360.0,
+      "T": 9000.0,
+      "irregularidade_motora": "Choque uniforme",
+      "irregularidade_movida": "Choque uniforme",
+      "Ka_imposto": null,
+      "i_alvo": null,
+      "tol_i": null
+    },
+    "operacao": {
+      "Vr": 50000,
+      "T_op": 50,
+      "T_Rmd": 40,
+      "T_Cmd": 30,
+      "C_Cdil": 1e-05,
+      "imersao": "pinhão",
+      "S_Hmin": 1.0,
+      "S_Fmin": 1.0,
+      "S_Hmax": 1.2,
+      "S_Fmax": 1.4,
+      "ISO": 7,
+      "F_B_rolamento": 0.01,
+      "Proj": "",
+      "lubrificante": {
+        "preset": "Norma1_lubrificante"
+      }
+    },
+    "metodos": {
+      "metodo_YF": "B",
+      "metodo_YF_interno": "cortador",
+      "curva_vida": "ISO",
+      "metodo_x": "DIN",
+      "M_BS": null,
+      "Lambda": null
+    },
+    "estagios": [
+      {
+        "nome": "Exemplo 1 da Norma ISO 6336-30",
+        "eta": 0.98,
+        "malha": {
+          "tipo": "Otimização",
+          "m_n": 8,
+          "Z_pinhao": 17,
+          "Z_coroa": 103,
+          "alpha_n": 20,
+          "beta": 15.8,
+          "x_pinhao": 0.145,
+          "a": 500
+        },
+        "pinhao": {
+          "b": 100,
+          "afastamento": "d",
+          "tol": 25,
+          "ASNE_min": null,
+          "ASNE_max": null,
+          "f_chanfro": 0,
+          "f_b": 1.6,
+          "crwon_s": 0,
+          "crwon_i": 0,
+          "op_acabamento": "Retificação",
+          "IQ": 5,
+          "Ra_flanco": 1,
+          "Ra_pe": 3,
+          "S_M": null,
+          "Arranjo": 1,
+          "k_linha": null,
+          "di": 0,
+          "bs": 100,
+          "d_sh": 100,
+          "L": 125,
+          "sh": 0,
+          "k_otimi": null,
+          "Dim_sobre_pinos": null,
+          "material": {
+            "preset": "Norma1_material"
+          },
+          "ferramenta": {
+            "preset": "Norma1_ferramenta_pinhao"
+          }
+        },
+        "coroa": {
+          "b": 100,
+          "afastamento": "d",
+          "tol": 25,
+          "ASNE_min": null,
+          "ASNE_max": null,
+          "f_chanfro": 0,
+          "f_b": 1.6,
+          "crwon_s": 0,
+          "crwon_i": 0,
+          "op_acabamento": "Retificação",
+          "IQ": 5,
+          "Ra_flanco": 1,
+          "Ra_pe": 3,
+          "S_M": null,
+          "Arranjo": 1,
+          "k_linha": null,
+          "di": 0,
+          "bs": 100,
+          "d_sh": 100,
+          "L": 125,
+          "sh": 0,
+          "k_otimi": null,
+          "Dim_sobre_pinos": null,
+          "material": {
+            "preset": "Norma1_material"
+          },
+          "ferramenta": {
+            "preset": "Norma1_ferramenta_coroa"
+          }
+        },
+        "analise": {
+          "k": 100.0,
+          "Ck": null,
+          "K_Hbeta_imposto": null
+        }
+      }
+    ],
+    "planetario": null,
+    "layout": {}
+  },
+  "resumo": {
+    "tipo": "trem",
+    "i_total": 6.0588235294117645,
+    "eta_total": 0.98,
+    "calculo_ok": true,
+    "todos_atendem": true,
+    "pior": {
+      "fator": "S_H",
+      "roda": "pinhão",
+      "malha": "Exemplo 1 da Norma ISO 6336-30",
+      "valor": 1.0267253000664707,
+      "minimo": 1.0,
+      "status": "atencao"
+    },
+    "problemas": [],
+    "seguranca": [
+      {
+        "malha": "Exemplo 1 da Norma ISO 6336-30",
+        "fator": "S_H",
+        "roda": "pinhão",
+        "valor": 1.0267253000664707,
+        "minimo": 1.0,
+        "status": "atencao"
+      },
+      {
+        "malha": "Exemplo 1 da Norma ISO 6336-30",
+        "fator": "S_H",
+        "roda": "coroa",
+        "valor": 1.0850580913922496,
+        "minimo": 1.0,
+        "status": "atencao"
+      },
+      {
+        "malha": "Exemplo 1 da Norma ISO 6336-30",
+        "fator": "S_F",
+        "roda": "pinhão",
+        "valor": 1.8481407986721408,
+        "minimo": 1.0,
+        "status": "ok"
+      },
+      {
+        "malha": "Exemplo 1 da Norma ISO 6336-30",
+        "fator": "S_F",
+        "roda": "coroa",
+        "valor": 1.9737240849687148,
+        "minimo": 1.0,
+        "status": "ok"
+      }
+    ]
+  }
+}

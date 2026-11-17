@@ -1,0 +1,297 @@
+{
+  "formato": "FEM-Planetaria",
+  "versao": 1,
+  "app": "Dimensionamento de engrenagens planetárias · FEM/Unicamp · LAMAR",
+  "salvo_em": "2026-11-13T16:38:18",
+  "nome": "Planetário composto 56 (25/25/10/13), material de referência",
+  "projeto": {
+    "nome": "Planetário composto 56 (25/25/10/13), material de referência",
+    "tipo": "planetario",
+    "entrada": {
+      "n": 13000.0,
+      "T": 31.0,
+      "irregularidade_motora": "Choque leve",
+      "irregularidade_movida": "Choque leve",
+      "Ka_imposto": null,
+      "i_alvo": null,
+      "tol_i": null
+    },
+    "operacao": {
+      "Vr": 115,
+      "T_op": 80,
+      "T_Rmd": 80,
+      "T_Cmd": 30,
+      "C_Cdil": 1e-05,
+      "imersao": "pinhão",
+      "S_Hmin": 1.1,
+      "S_Fmin": 1.2,
+      "S_Hmax": 1.3,
+      "S_Fmax": 1.4,
+      "ISO": 7,
+      "F_B_rolamento": 0.01,
+      "Proj": "Gabriel Dias",
+      "lubrificante": {
+        "preset": "base_lubrificante"
+      }
+    },
+    "metodos": {
+      "metodo_YF": "B",
+      "metodo_YF_interno": "cortador",
+      "curva_vida": "ISO",
+      "metodo_x": "DIN",
+      "M_BS": null,
+      "Lambda": null
+    },
+    "estagios": [],
+    "planetario": {
+      "tipo": "Composto",
+      "N_cp": 3,
+      "Ky": 1.05,
+      "entrada": "sol",
+      "saida": "porta-planetas",
+      "modo": "fixo",
+      "n_livre": 0.0,
+      "sol": {
+        "b": 25.5,
+        "afastamento": "d",
+        "tol": 26,
+        "ASNE_min": null,
+        "ASNE_max": null,
+        "f_chanfro": 0,
+        "f_b": 1.6,
+        "crwon_s": 0.02,
+        "crwon_i": 0.01,
+        "op_acabamento": "Retificação",
+        "IQ": 5,
+        "Ra_flanco": 0.4,
+        "Ra_pe": 5,
+        "S_M": 0,
+        "Arranjo": 2,
+        "k_linha": null,
+        "di": 0,
+        "bs": 14.25,
+        "d_sh": 10.5,
+        "L": 134.1,
+        "sh": 25,
+        "k_otimi": null,
+        "Dim_sobre_pinos": null,
+        "material": {
+          "preset": "Material_Ref"
+        },
+        "ferramenta": {
+          "preset": "base_ferramenta_pinhao"
+        },
+        "z": 15
+      },
+      "planeta_maior": {
+        "b": 25.5,
+        "afastamento": "d",
+        "tol": 26,
+        "ASNE_min": null,
+        "ASNE_max": null,
+        "f_chanfro": 0,
+        "f_b": 1.6,
+        "crwon_s": 0,
+        "crwon_i": 0,
+        "op_acabamento": "Retificação",
+        "IQ": 5,
+        "Ra_flanco": 0.4,
+        "Ra_pe": 5,
+        "S_M": 0,
+        "Arranjo": 1,
+        "k_linha": null,
+        "di": 10,
+        "bs": 13.75,
+        "d_sh": 10,
+        "L": 32,
+        "sh": 4,
+        "k_otimi": null,
+        "Dim_sobre_pinos": null,
+        "material": {
+          "preset": "Material_Ref"
+        },
+        "ferramenta": {
+          "preset": "base_ferramenta_coroa"
+        },
+        "z": 48
+      },
+      "planeta_menor": {
+        "b": 14,
+        "afastamento": "d",
+        "tol": 26,
+        "ASNE_min": null,
+        "ASNE_max": null,
+        "f_chanfro": 0,
+        "f_b": 1.6,
+        "crwon_s": 0.02,
+        "crwon_i": 0.01,
+        "op_acabamento": "Retificação",
+        "IQ": 5,
+        "Ra_flanco": 0.4,
+        "Ra_pe": 5,
+        "S_M": 0,
+        "Arranjo": 7,
+        "k_linha": null,
+        "di": 10,
+        "bs": 18,
+        "d_sh": 10,
+        "L": 30,
+        "sh": 4,
+        "k_otimi": null,
+        "Dim_sobre_pinos": null,
+        "material": {
+          "preset": "Material_Ref"
+        },
+        "ferramenta": {
+          "preset": "base_ferramenta_pinhao"
+        },
+        "z": 21
+      },
+      "anelar": {
+        "b": 14,
+        "afastamento": "d",
+        "tol": 26,
+        "ASNE_min": null,
+        "ASNE_max": null,
+        "f_chanfro": 0,
+        "f_b": 1.6,
+        "crwon_s": 0,
+        "crwon_i": 0,
+        "op_acabamento": "Fresamento",
+        "IQ": 8,
+        "Ra_flanco": 5,
+        "Ra_pe": 5,
+        "S_M": 0,
+        "Arranjo": 1,
+        "k_linha": null,
+        "bs": 18,
+        "d_sh": 0,
+        "L": 10,
+        "sh": 4,
+        "k_otimi": null,
+        "Dim_sobre_pinos": null,
+        "material": {
+          "preset": "Material_Ref"
+        },
+        "ferramenta": {
+          "preset": "base_ferramenta_coroa"
+        },
+        "z": 69,
+        "D_ext": 113.94293
+      },
+      "malha_ext": {
+        "tipo": "Otimização",
+        "m_n": 1,
+        "Z_pinhao": 15,
+        "Z_coroa": 48,
+        "alpha_n": 25,
+        "beta": 0,
+        "x_pinhao": 0.15,
+        "a": 31.166666
+      },
+      "malha_int": {
+        "tipo": "Otimização",
+        "m_n": 1.3,
+        "Z_pinhao": 21,
+        "Z_coroa": -69,
+        "alpha_n": 25,
+        "beta": 0,
+        "x_pinhao": 0.3,
+        "a": -31.166666
+      },
+      "analise_ext": {
+        "k": 100.0,
+        "Ck": null,
+        "K_Hbeta_imposto": null
+      },
+      "analise_int": {
+        "k": 50.0,
+        "Ck": null,
+        "K_Hbeta_imposto": null
+      }
+    },
+    "layout": {}
+  },
+  "resumo": {
+    "tipo": "planetario",
+    "i_total": 11.514285714285714,
+    "eta_total": 1.0,
+    "calculo_ok": true,
+    "todos_atendem": false,
+    "pior": {
+      "fator": "S_F",
+      "roda": "coroa",
+      "malha": "Malha interna (planeta × anelar)",
+      "valor": 1.0854840593980577,
+      "minimo": 1.2,
+      "status": "ruim"
+    },
+    "problemas": [],
+    "seguranca": [
+      {
+        "malha": "Malha externa (sol × planeta)",
+        "fator": "S_H",
+        "roda": "pinhão",
+        "valor": 1.1107829243191465,
+        "minimo": 1.1,
+        "status": "atencao"
+      },
+      {
+        "malha": "Malha externa (sol × planeta)",
+        "fator": "S_H",
+        "roda": "coroa",
+        "valor": 1.3087694691930993,
+        "minimo": 1.1,
+        "status": "ok"
+      },
+      {
+        "malha": "Malha externa (sol × planeta)",
+        "fator": "S_F",
+        "roda": "pinhão",
+        "valor": 2.8087264127525637,
+        "minimo": 1.2,
+        "status": "ok"
+      },
+      {
+        "malha": "Malha externa (sol × planeta)",
+        "fator": "S_F",
+        "roda": "coroa",
+        "valor": 3.228284426148236,
+        "minimo": 1.2,
+        "status": "ok"
+      },
+      {
+        "malha": "Malha interna (planeta × anelar)",
+        "fator": "S_H",
+        "roda": "pinhão",
+        "valor": 1.0817352135759772,
+        "minimo": 1.1,
+        "status": "ruim"
+      },
+      {
+        "malha": "Malha interna (planeta × anelar)",
+        "fator": "S_H",
+        "roda": "coroa",
+        "valor": 1.136691134569625,
+        "minimo": 1.1,
+        "status": "atencao"
+      },
+      {
+        "malha": "Malha interna (planeta × anelar)",
+        "fator": "S_F",
+        "roda": "pinhão",
+        "valor": 1.1424940454054329,
+        "minimo": 1.2,
+        "status": "ruim"
+      },
+      {
+        "malha": "Malha interna (planeta × anelar)",
+        "fator": "S_F",
+        "roda": "coroa",
+        "valor": 1.0854840593980577,
+        "minimo": 1.2,
+        "status": "ruim"
+      }
+    ]
+  }
+}

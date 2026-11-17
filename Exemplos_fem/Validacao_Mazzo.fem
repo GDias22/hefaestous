@@ -1,0 +1,181 @@
+{
+  "formato": "FEM-Planetaria",
+  "versao": 1,
+  "app": "Dimensionamento de engrenagens planetárias · FEM/Unicamp · LAMAR",
+  "salvo_em": "2026-11-13T16:38:17",
+  "nome": "Validação Mazzo (par helicoidal externo z=25/61, m_n=3)",
+  "projeto": {
+    "nome": "Validação Mazzo (par helicoidal externo z=25/61, m_n=3)",
+    "tipo": "trem",
+    "entrada": {
+      "n": 1750.0,
+      "T": 622.0,
+      "irregularidade_motora": "Choque uniforme",
+      "irregularidade_movida": "Choque uniforme",
+      "Ka_imposto": null,
+      "i_alvo": null,
+      "tol_i": null
+    },
+    "operacao": {
+      "Vr": 4160,
+      "T_op": 50,
+      "T_Rmd": 40,
+      "T_Cmd": 30,
+      "C_Cdil": 1e-05,
+      "imersao": "pinhão",
+      "S_Hmin": 1.0,
+      "S_Fmin": 1.1,
+      "S_Hmax": 1.2,
+      "S_Fmax": 1.4,
+      "ISO": 7,
+      "F_B_rolamento": 0.01,
+      "Proj": "Mazzo",
+      "lubrificante": {
+        "preset": "Mazzo_lubrificante"
+      }
+    },
+    "metodos": {
+      "metodo_YF": "B",
+      "metodo_YF_interno": "cortador",
+      "curva_vida": "ISO",
+      "metodo_x": "DIN",
+      "M_BS": null,
+      "Lambda": null
+    },
+    "estagios": [
+      {
+        "nome": "Exemplo mazzo externo",
+        "eta": 0.98,
+        "malha": {
+          "tipo": "Otimização",
+          "m_n": 3,
+          "Z_pinhao": 25,
+          "Z_coroa": 61,
+          "alpha_n": 20,
+          "beta": 23.188056,
+          "x_pinhao": 0.115898,
+          "a": 140
+        },
+        "pinhao": {
+          "b": 20,
+          "afastamento": "d",
+          "tol": 25,
+          "ASNE_min": null,
+          "ASNE_max": null,
+          "f_chanfro": 0.15,
+          "f_b": 1.6,
+          "crwon_s": 0.01,
+          "crwon_i": 0.007,
+          "op_acabamento": "Retificação",
+          "IQ": 6,
+          "Ra_flanco": 0.8,
+          "Ra_pe": 4.7619,
+          "S_M": null,
+          "Arranjo": 3,
+          "k_linha": null,
+          "di": 30,
+          "bs": 10,
+          "d_sh": 30,
+          "L": 118,
+          "sh": 18,
+          "k_otimi": null,
+          "Dim_sobre_pinos": null,
+          "material": {
+            "preset": "Mazzo_material"
+          },
+          "ferramenta": {
+            "preset": "Mazzo_ferramenta_pinhao"
+          }
+        },
+        "coroa": {
+          "b": 20,
+          "afastamento": "d",
+          "tol": 25,
+          "ASNE_min": null,
+          "ASNE_max": null,
+          "f_chanfro": 0.15,
+          "f_b": 1.6,
+          "crwon_s": 0,
+          "crwon_i": 0,
+          "op_acabamento": "Retificação",
+          "IQ": 6,
+          "Ra_flanco": 0.8,
+          "Ra_pe": 4.7619,
+          "S_M": null,
+          "Arranjo": 3,
+          "k_linha": null,
+          "di": 140,
+          "bs": 10,
+          "d_sh": 70,
+          "L": 118,
+          "sh": 18,
+          "k_otimi": null,
+          "Dim_sobre_pinos": null,
+          "material": {
+            "preset": "Mazzo_material"
+          },
+          "ferramenta": {
+            "preset": "Mazzo_ferramenta_coroa"
+          }
+        },
+        "analise": {
+          "k": 100.0,
+          "Ck": null,
+          "K_Hbeta_imposto": null
+        }
+      }
+    ],
+    "planetario": null,
+    "layout": {}
+  },
+  "resumo": {
+    "tipo": "trem",
+    "i_total": 2.44,
+    "eta_total": 0.98,
+    "calculo_ok": true,
+    "todos_atendem": true,
+    "pior": {
+      "fator": "S_H",
+      "roda": "pinhão",
+      "malha": "Exemplo mazzo externo",
+      "valor": 1.1040345763114898,
+      "minimo": 1.0,
+      "status": "ok"
+    },
+    "problemas": [],
+    "seguranca": [
+      {
+        "malha": "Exemplo mazzo externo",
+        "fator": "S_H",
+        "roda": "pinhão",
+        "valor": 1.1040345763114898,
+        "minimo": 1.0,
+        "status": "ok"
+      },
+      {
+        "malha": "Exemplo mazzo externo",
+        "fator": "S_H",
+        "roda": "coroa",
+        "valor": 1.1350206538443435,
+        "minimo": 1.0,
+        "status": "ok"
+      },
+      {
+        "malha": "Exemplo mazzo externo",
+        "fator": "S_F",
+        "roda": "pinhão",
+        "valor": 1.2651565565218195,
+        "minimo": 1.1,
+        "status": "ok"
+      },
+      {
+        "malha": "Exemplo mazzo externo",
+        "fator": "S_F",
+        "roda": "coroa",
+        "valor": 1.3226354354696086,
+        "minimo": 1.1,
+        "status": "ok"
+      }
+    ]
+  }
+}

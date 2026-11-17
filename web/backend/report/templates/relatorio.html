@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>HEFAESTOUS — Relatório — {{ titulo }}</title>
+<style>
+  :root { --red:#b8282c; --blue:#003882; --text:#353c43; --muted:#646566; --line:#d9dde2; --surface:#f2f3f5; --ok:#2e7d32; --warn:#c77700; }
+  * { box-sizing: border-box; }
+  body { font-family: "Inter", "Segoe UI", Arial, sans-serif; color: var(--text); margin: 0; font-size: 11.5pt; line-height: 1.4; background: #fff; }
+  .page { max-width: 1000px; margin: 0 auto; padding: 18mm 16mm; }
+  header.cab { display: flex; align-items: center; gap: 18px; border-bottom: 4px solid var(--red); padding-bottom: 10px; margin-bottom: 16px; }
+  header.cab img { height: 48px; }
+  header.cab .sep { width: 1px; height: 44px; background: var(--line); }
+  header.cab .t { flex: 1; }
+  header.cab h1 { margin: 0; font-size: 17pt; color: var(--text); }
+  header.cab small { color: var(--muted); }
+  .meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px 18px; background: var(--surface); border-radius: 8px; padding: 10px 14px; margin-bottom: 18px; font-size: 10.5pt; }
+  .meta b { color: var(--blue); }
+  h2 { font-size: 14pt; color: var(--blue); border-bottom: 1px solid var(--line); padding-bottom: 4px; margin: 26px 0 10px; page-break-after: avoid; }
+  h3 { font-size: 11.5pt; color: var(--red); text-transform: uppercase; letter-spacing: .04em; margin: 16px 0 6px; page-break-after: avoid; }
+  table { width: 100%; border-collapse: collapse; font-size: 10pt; margin-bottom: 10px; page-break-inside: auto; }
+  th, td { padding: 3px 7px; border-bottom: 1px solid var(--line); text-align: right; vertical-align: top; }
+  th { background: var(--surface); color: var(--muted); font-weight: 600; }
+  th:first-child, td:first-child { text-align: left; }
+  td.num { font-family: Consolas, "Courier New", monospace; font-size: 9.5pt; white-space: nowrap; }
+  tr { page-break-inside: avoid; }
+  .unit { color: #95999e; font-size: 9pt; margin-left: 3px; }
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 8px 0 14px; }
+  .card { border: 1px solid var(--line); border-left: 6px solid #95999e; border-radius: 8px; padding: 8px 10px; }
+  .card.ok { border-left-color: var(--ok); } .card.atencao { border-left-color: var(--warn); } .card.ruim { border-left-color: var(--red); }
+  .card .f { color: var(--muted); font-size: 9.5pt; } .card .v { font-size: 18pt; font-weight: 700; font-family: Consolas, monospace; }
+  .card.ok .v { color: var(--ok); } .card.atencao .v { color: var(--warn); } .card.ruim .v { color: var(--red); }
+  .card .m { font-size: 9pt; color: var(--muted); }
+  .aviso { border-left: 4px solid var(--warn); background: #fff4e0; padding: 5px 9px; border-radius: 4px; margin: 4px 0; font-size: 10pt; }
+  .aviso.ok { border-left-color: var(--ok); background: #e8f3e9; }
+  .cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; }
+  .fig { text-align: center; margin: 10px 0 14px; page-break-inside: avoid; }
+  .fig svg, .fig img { max-width: 100%; max-height: 420px; }
+  .fig figcaption { font-size: 9.5pt; color: var(--muted); margin-top: 4px; }
+  footer { margin-top: 30px; border-top: 1px solid var(--line); padding-top: 8px; font-size: 9pt; color: var(--muted); display: flex; justify-content: space-between; }
+  .toolbar { position: fixed; top: 10px; right: 10px; display: flex; gap: 6px; }
+  .toolbar button, .toolbar a { font: inherit; font-size: 10pt; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--line); background: #fff; cursor: pointer; color: var(--text); text-decoration: none; }
+  .toolbar button.p { background: var(--red); color: #fff; border-color: var(--red); }
+  @page { size: A4; margin: 14mm 12mm; }
+  @media print { .toolbar { display: none; } .page { padding: 0; max-width: none; } h2 { page-break-before: auto; } .pb { page-break-before: always; } }
+</style>
+</head>
+<body>
+<div class="toolbar">
+  <a href="/api/export/{{ session_id }}.json" download>JSON</a>
+  <a href="/api/export/{{ session_id }}.xlsx" download>XLSX</a>
+  <button class="p" onclick="window.print()">Exportar PDF (imprimir)</button>
+</div>
+<div class="page">
+<header class="cab">
+  {% if logo_app %}<img src="{{ logo_app }}" alt="HEFAESTOUS" style="height:52px">{% endif %}
+  {% if logo_unicamp %}<img src="{{ logo_unicamp }}" alt="Unicamp">{% endif %}
+  <span class="sep"></span>
+  {% if logo_fem %}<img src="{{ logo_fem }}" alt="FEM">{% endif %}
+  <div class="t"><h1>Relatório de dimensionamento — {{ titulo }}</h1>
+  <small><b>HEFAESTOUS</b> · Engrenagens cilíndricas de dentes retos/helicoidais · Geometria DIN 3960/3967 · Capacidade de carga ISO 6336</small></div>
+</header>
+<div class="meta">
+  <div><b>Sessão</b><br>{{ session_id }}</div>
+  <div><b>Data</b><br>{{ data }}</div>
+  <div><b>Engenheiro</b><br>{{ engenheiro or "—" }}</div>
+</div>
+
+{% if tensoes %}
+<h2>1. Resumo das seguranças (ISO 6336)</h2>
+{% for m in tensoes.malhas %}
+<h3>Malha {{ m.indice }} — {{ m.apelido }}</h3>
+<div class="cards">
+{% for c in m.cards %}
+  <div class="card {{ c.status }}"><div class="f">{{ c.fator }} · {{ c.roda }}</div><div class="v">{{ c.valor|fmt(3) }}</div>
+  <div class="m">mínimo {{ c.minimo|fmt(2) }} · {{ "atende" if c.status == "ok" else ("margem < 10 %" if c.status == "atencao" else ("não atende" if c.status == "ruim" else "n/d")) }}</div></div>
+{% endfor %}
+</div>
+{% endfor %}
+{% endif %}
+
+{% if transmissao %}
+<h2>{{ "2" if tensoes else "1" }}. Transmissão</h2>
+{% if svgs.esquema %}<figure class="fig">{{ svgs.esquema|safe }}<figcaption>Esquema da transmissão à escala com rotação, torque e potência em cada eixo.</figcaption></figure>{% endif %}
+<table><tr><th>Eixo</th><th>n<span class="unit">rpm</span></th><th>T<span class="unit">N·m</span></th><th>P<span class="unit">kW</span></th><th>i do estágio</th><th>η</th></tr>
+{% for e in transmissao.eixos %}<tr><td>{{ e.nome }}</td><td class="num">{{ e.n|fmt(1) }}</td><td class="num">{{ e.T|fmt(2) }}</td><td class="num">{{ e.P_kW|fmt(3) }}</td><td class="num">{{ e.i_estagio|fmt(4) if e.i_estagio is defined else "—" }}</td><td class="num">{{ e.eta|fmt(3) if e.eta is defined else "—" }}</td></tr>{% endfor %}
+</table>
+<p>Redução total <b>i = {{ transmissao.i_total|fmt(4) }}</b>{% if transmissao.eta_total and transmissao.eta_total < 1 %} · rendimento total η = {{ transmissao.eta_total|fmt(4) }}{% endif %}{% if transmissao.cinematica %}{% if transmissao.cinematica.modo == 'diferencial' %} · modo diferencial (2 graus de liberdade): membro livre {{ transmissao.cinematica.membro_livre }} a {{ transmissao.cinematica.n_membros[transmissao.cinematica.membro_livre]|fmt(1) }} rpm (imposto){% else %} · membro fixo: {{ transmissao.cinematica.membro_fixo }}{% endif %} · {{ transmissao.elementos.N_cp }} planetas · anelar no K_v: {{ 'presa à carcaça (Ring fixo)' if transmissao.cinematica.ring == 'Fixo' else 'girando (Ring rotativo)' }}{% endif %}.</p>
+{% if transmissao.cinematica %}{% set k = transmissao.cinematica %}
+<table><tr><th>Cinemática do planetário</th><th>Valor</th></tr>
+<tr><td>n porta-planetas / n anelar / n planeta (abs.)<span class="unit">rpm</span></td><td class="num">{{ k.n_c|fmt(1) }} / {{ k.n_anel|fmt(1) }} / {{ k.n_pla|fmt(1) }}</td></tr>
+<tr><td>n sol relativa / n planeta relativa<span class="unit">rpm</span></td><td class="num">{{ k.n_sol_rel|fmt(1) }} / {{ k.n_pla_rel|fmt(1) }}</td></tr>
+<tr><td>T sol / T malha interna / T anelar / T porta-planetas<span class="unit">N·m</span></td><td class="num">{{ k.T_malha_ext|fmt(2) }} / {{ k.T_malha_int|fmt(2) }} / {{ k.T_anel|fmt(2) }} / {{ k.T_carrier|fmt(2) }}</td></tr>
+</table>{% endif %}
+{% endif %}
+{% if cinematica and cinematica.candidato %}
+<h2>{{ "2" if tensoes else "1" }}. Cinemática do planetário</h2>
+{% set c = cinematica.candidato %}{% set k = cinematica.cinematica %}
+<div class="cols2">
+<table><tr><th>Grandeza</th><th>Valor</th></tr>
+<tr><td>Números de dentes (sol / planeta maior / planeta menor / anelar)</td><td class="num">{{ c.Zs }} / {{ c.Zbp }} / {{ c.Zsp }} / {{ c.Zr }}</td></tr>
+<tr><td>Redução real</td><td class="num">{{ c.i_real|fmt }}</td></tr>
+<tr><td>Módulos normais (externa / interna)<span class="unit">mm</span></td><td class="num">{{ c.m_n_ext|fmt }} / {{ c.m_n_int|fmt }}</td></tr>
+<tr><td>Distâncias entre centros (externa / interna)<span class="unit">mm</span></td><td class="num">{{ c.a_ext|fmt }} / {{ c.a_int|fmt }}</td></tr>
+<tr><td>Σx (externa / interna)</td><td class="num">{{ c.sum_x_ext|fmt }} / {{ c.sum_x_int|fmt }}</td></tr>
+<tr><td>ε_α (externa / interna)</td><td class="num">{{ c.eps_alpha_ext|fmt }} / {{ c.eps_alpha_int|fmt }}</td></tr>
+<tr><td>Ø externo da anelar<span class="unit">mm</span></td><td class="num">{{ c.D_ext_anelar|fmt }}</td></tr>
+<tr><td>Folga entre planetas vizinhos<span class="unit">mm</span></td><td class="num">{{ c.folga_planetas|fmt }}</td></tr>
+</table>
+{% if k %}
+<table><tr><th>Rotações e torques (anelar fixa)</th><th>Valor</th></tr>
+<tr><td>n porta-planetas<span class="unit">rpm</span></td><td class="num">{{ k.n_c|fmt }}</td></tr>
+<tr><td>n planeta absoluta<span class="unit">rpm</span></td><td class="num">{{ k.n_pla|fmt }}</td></tr>
+<tr><td>n sol relativa / n planeta relativa<span class="unit">rpm</span></td><td class="num">{{ k.n_sol_rel|fmt }} / {{ k.n_pla_rel|fmt }}</td></tr>
+<tr><td>T sol / T malha interna<span class="unit">N·m</span></td><td class="num">{{ k.T_malha_ext|fmt }} / {{ k.T_malha_int|fmt }}</td></tr>
+<tr><td>T anelar (reação) / T porta-planetas<span class="unit">N·m</span></td><td class="num">{{ k.T_anel|fmt }} / {{ k.T_carrier|fmt }}</td></tr>
+</table>
+{% endif %}
+</div>
+{% if svgs.planetario %}<figure class="fig">{{ svgs.planetario|safe }}<figcaption>Esboço do planetário (círculos primitivos e de cabeça, aro da anelar e envelope).</figcaption></figure>{% endif %}
+{% endif %}
+
+<h2 class="pb">{{ "3" if (tensoes and cinematica and cinematica.candidato) else ("2" if (tensoes or (cinematica and cinematica.candidato)) else "1") }}. Dados de entrada</h2>
+{% for ent, subs, g in entradas %}
+<h3>Malha {{ loop.index }}{% if g %} — {{ g.apelido }}{% else %} — <span style="color:var(--red)">não calculada (erro de entrada)</span>{% endif %}</h3>
+<div class="cols2">
+<table><tr><th>Parâmetro</th><th>Valor</th></tr>
+{% for label, v, u in ent[:ent|length // 2 + 1] %}<tr><td>{{ label }}{% if u %}<span class="unit">{{ u }}</span>{% endif %}</td><td class="num">{{ v }}</td></tr>{% endfor %}
+</table>
+<table><tr><th>Parâmetro</th><th>Valor</th></tr>
+{% for label, v, u in ent[ent|length // 2 + 1:] %}<tr><td>{{ label }}{% if u %}<span class="unit">{{ u }}</span>{% endif %}</td><td class="num">{{ v }}</td></tr>{% endfor %}
+</table>
+</div>
+<table><tr><th>Material / ferramenta / lubrificante</th><th>Definição</th></tr>
+{% for titulo, modo, campos in subs %}<tr><td>{{ titulo }}</td><td class="num">{{ modo }}{% if campos %}: {% for l, v, u in campos %}{{ l }} = {{ v }}{{ u }}{% if not loop.last %}; {% endif %}{% endfor %}{% endif %}</td></tr>{% endfor %}
+</table>
+{% endfor %}
+
+{% for g in geometria %}{% if g %}
+<h2 class="pb">Geometria — {{ g.apelido }} {% if g.interna %}(malha interna){% else %}(malha externa){% endif %}</h2>
+{% if g.avisos %}<h3>Avisos</h3>{% for a in g.avisos %}<div class="aviso {{ a.nivel }}">{{ a.texto }}</div>{% endfor %}{% endif %}
+{% for sec in g.secoes %}
+<h3>{{ sec.titulo }}</h3>
+<table>
+<tr><th>Grandeza</th>{% if sec.linhas|selectattr("pc")|list %}<th>Pinhão</th><th>Coroa</th>{% else %}<th>Valor</th>{% endif %}</tr>
+{% for l in sec.linhas %}
+<tr><td>{{ l.label }}{% if l.unit %}<span class="unit">{{ l.unit }}</span>{% endif %}</td>
+{% if l.pc is defined %}<td class="num">{{ l.pc[0]|fmt }}</td><td class="num">{{ l.pc[1]|fmt }}</td>{% else %}<td class="num" {% if sec.linhas|selectattr("pc")|list %}colspan="2"{% endif %}>{{ l.v|fmt }}</td>{% endif %}</tr>
+{% endfor %}
+</table>
+{% endfor %}
+{% set key = "perfil_" ~ loop.index0 %}
+{% if svgs[key ~ "_pinhao"] or svgs[key ~ "_coroa"] %}
+<h3>Perfis dos dentes</h3>
+<div class="cols2">
+{% if svgs[key ~ "_pinhao"] %}<figure class="fig">{{ svgs[key ~ "_pinhao"]|safe }}<figcaption>Pinhão — perfil final (azul) e pré-usinagem com protuberância (laranja tracejado).</figcaption></figure>{% endif %}
+{% if svgs[key ~ "_coroa"] %}<figure class="fig">{{ svgs[key ~ "_coroa"]|safe }}<figcaption>Coroa — perfil final e pré-usinagem.</figcaption></figure>{% endif %}
+</div>
+{% endif %}
+{% if extras.sobremetal and extras.sobremetal[loop.index0] %}
+<h3>Sobremetal de retífica e pré-usinagem</h3>
+<table><tr><th>Grandeza</th><th>Pinhão</th><th>Coroa</th></tr>
+{% set sp = extras.sobremetal[loop.index0].pinhao %}{% set sc = extras.sobremetal[loop.index0].coroa %}
+<tr><td>Sobremetal por flanco q<span class="unit">mm</span></td><td class="num">{{ sp.q|fmt }}</td><td class="num">{{ sc.q|fmt }}</td></tr>
+<tr><td>Protuberância da ferramenta pr₀<span class="unit">mm</span></td><td class="num">{{ sp.pr0|fmt }}</td><td class="num">{{ sc.pr0|fmt }}</td></tr>
+<tr><td>Deslocamento de perfil final x</td><td class="num">{{ sp.x|fmt }}</td><td class="num">{{ sc.x|fmt }}</td></tr>
+<tr><td>Deslocamento de perfil da pré-usinagem x_pre</td><td class="num">{{ sp.x_pre|fmt }}</td><td class="num">{{ sc.x_pre|fmt }}</td></tr>
+<tr><td>Dedendo da ferramenta h_fP*</td><td class="num">{{ sp.h_fP_star|fmt }}</td><td class="num">{{ sc.h_fP_star|fmt }}</td></tr>
+<tr><td>Dedendo efetivo da peça acabada h_fP*_final</td><td class="num">{{ sp.h_fP_final_star|fmt }}</td><td class="num">{{ sc.h_fP_final_star|fmt }}</td></tr>
+<tr><td>Diâmetro de pé nominal (sem sobremetal)<span class="unit">mm</span></td><td class="num">{{ sp.d_f_nominal|fmt }}</td><td class="num">{{ sc.d_f_nominal|fmt }}</td></tr>
+<tr><td>Diâmetro de pé gerado na pré-usinagem = final<span class="unit">mm</span></td><td class="num">{{ sp.d_f_pre|fmt }}</td><td class="num">{{ sc.d_f_pre|fmt }}</td></tr>
+<tr><td>Protuberância efetiva após retífica s_pr<span class="unit">mm</span></td><td class="num">{{ sp.s_pr|fmt }}</td><td class="num">{{ sc.s_pr|fmt }}</td></tr>
+</table>
+{% for a in sp.avisos %}<div class="aviso">Pinhão: {{ a }}</div>{% endfor %}{% for a in sc.avisos %}<div class="aviso">Coroa: {{ a }}</div>{% endfor %}
+{% endif %}
+{% endif %}{% endfor %}
+
+{% if tensoes %}
+<h2 class="pb">Tensões e fatores ISO 6336</h2>
+<table><tr><th>Parâmetro da análise</th><th>Valor</th></tr>
+{% for k, v in entradas_tensoes.items() %}{% if k in PARAMS %}<tr><td>{{ PARAMS[k].label }}</td><td class="num">{{ v|fmt }}</td></tr>{% endif %}{% endfor %}
+</table>
+{% for m in tensoes.malhas %}
+<h2>Malha {{ m.indice }} — {{ m.apelido }}</h2>
+{% if m.avisos %}{% for a in m.avisos %}<div class="aviso">{{ a.texto }}</div>{% endfor %}{% endif %}
+{% for sec in m.secoes %}
+<h3>{{ sec.titulo }}</h3>
+<table>
+<tr><th>Grandeza</th>{% if sec.linhas|selectattr("pc")|list %}<th>Pinhão</th><th>Coroa</th>{% else %}<th>Valor</th>{% endif %}</tr>
+{% for l in sec.linhas %}
+<tr><td>{{ l.label }}{% if l.unit %}<span class="unit">{{ l.unit }}</span>{% endif %}</td>
+{% if l.pc is defined %}<td class="num">{{ l.pc[0]|fmt }}</td><td class="num">{{ l.pc[1]|fmt }}</td>{% else %}<td class="num" {% if sec.linhas|selectattr("pc")|list %}colspan="2"{% endif %}>{{ l.v|fmt }}</td>{% endif %}</tr>
+{% endfor %}
+</table>
+{% endfor %}
+{% endfor %}
+{% endif %}
+
+<footer>
+  <div><b>HEFAESTOUS</b> · FEM · Unicamp — Faculdade de Engenharia Mecânica · Laboratório de Máquinas Rotativas (LAMAR) · Desenvolvido por Gabriel Dias</div>
+  <div>{{ data }} · sessão {{ session_id }}</div>
+</footer>
+</div>
+</body>
+</html>

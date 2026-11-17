@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HEFAESTOUS · Dimensionamento de engrenagens</title>
+<link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32.png">
+<link rel="icon" type="image/png" sizes="256x256" href="/static/img/favicon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/static/img/favicon.png">
+<link rel="apple-touch-icon" href="/static/img/icon-192.png">
+<link rel="shortcut icon" href="/static/img/favicon.ico">
+<link rel="stylesheet" href="/static/vendor/katex/katex.min.css">
+<link rel="stylesheet" href="/static/css/app.css?v=20261116b">
+<script type="importmap">
+{ "imports": { "three": "/static/vendor/three/three.module.js", "three/addons/": "/static/vendor/three/addons/" } }
+</script>
+<script defer src="/static/vendor/katex/katex.min.js"></script>
+<script defer src="/static/vendor/katex/auto-render.min.js"></script>
+<script src="/static/vendor/marked/marked.min.js"></script>
+</head>
+<body>
+<div id="app">
+  <header id="topbar">
+    <img class="appicon" src="/static/img/icon-mark.png" alt="HEFAESTOUS" width="54" height="54">
+    <div class="brand" title="Hefaestous — dimensionamento de engrenagens cilíndricas e planetárias">
+      <div class="name">Hefaestous</div>
+      <div class="logos">
+        <img src="/static/img/logo-unicamp.svg" alt="Unicamp">
+        <span class="sep"></span>
+        <img src="/static/img/logo-fem.png" alt="FEM">
+      </div>
+    </div>
+    <div class="proj">
+      <input id="proj-nome" value="Novo projeto" spellcheck="false" title="Nome do projeto">
+      <small>Dimensionamento de engrenagens · DIN 3960/3967 · ISO 6336<span id="proj-arquivo" class="arq-nome" title="Arquivo .fem do projeto"></span></small>
+    </div>
+    <div class="grow"></div>
+    <div class="status" id="status"><span class="dot"></span><span class="txt">pronto</span></div>
+    <div class="seg" id="seg-modo" title="Modo de trabalho">
+      <button data-v="livre" class="on">Livre</button>
+      <button data-v="guiado">Guiado</button>
+    </div>
+    <div class="actions" style="display:flex;gap:6px">
+      <button class="btn sm" id="b-novo">Novo</button>
+      <button class="btn sm" id="b-abrir">Abrir</button>
+      <button class="btn sm" id="b-salvar" title="Salvar projeto (.fem) — Ctrl+S">Salvar</button>
+      <button class="btn sm ghost" id="b-salvar-como" title="Salvar uma cópia como… (Ctrl+Shift+S)">Salvar como…</button>
+      <button class="btn sm blue" id="b-relatorio">Relatório</button>
+      <button class="btn sm" id="b-export">Exportar ▾</button>
+    </div>
+  </header>
+
+  <aside id="sidebar">
+    <div class="sec"><h3>Fluxo do projeto</h3></div>
+    <div class="tree" id="tree"></div>
+    <div id="guide"></div>
+    <div class="foot">FEM · Unicamp — Laboratório de Máquinas Rotativas (LAMAR)<br><span class="credit">Desenvolvido por Gabriel Dias</span></div>
+  </aside>
+
+  <main id="center">
+    <!-- Árvore à esquerda = etapas do projeto (o que editar). Esta barra = VISTAS do centro (o que mostrar); são independentes:
+         trocar de vista não muda a etapa selecionada. Arquitetura e Busca de dentes só abrem pela árvore (painel próprio, sem aba). -->
+    <div class="tabs" id="tabs">
+      <button data-t="esquema" title="Vista — esquema da transmissão (clique numa roda para editá-la)">Esquema</button>
+      <button data-t="dente" title="Vista — perfil do dente da roda selecionada">Dente</button>
+      <button data-t="roda" title="Vista — roda 2D da roda selecionada">Roda 2D</button>
+      <button data-t="cad" title="Vista — sólido 3D / STEP da roda selecionada">3D / STEP</button>
+      <span class="tabsep"></span>
+      <button data-t="layout" title="Vista — eixos, mancais e arranjo físico">Layout</button>
+      <button data-t="tabelas" title="Vista — todas as grandezas calculadas">Tabelas</button>
+      <span class="spacer"></span>
+      <button data-t="aprender" title="Textos didáticos (Mazzo, ISO 6336)">Aprender</button>
+    </div>
+    <div id="canvas">
+      <section class="pane on" data-p="arquitetura"></section>
+      <section class="pane" data-p="dentes"></section>
+      <section class="pane" data-p="esquema"></section>
+      <section class="pane" data-p="dente"></section>
+      <section class="pane" data-p="roda"></section>
+      <section class="pane" data-p="layout"></section>
+      <section class="pane" data-p="cad"></section>
+      <section class="pane" data-p="tabelas"></section>
+      <section class="pane" data-p="aprender"></section>
+      <div id="drawer"></div>
+    </div>
+  </main>
+
+  <aside id="right">
+    <div class="head"><h2 id="insp-title">—</h2><span class="small muted" id="insp-sub"></span></div>
+    <div class="scroll">
+      <div id="inspector"></div>
+      <div id="results"></div>
+    </div>
+  </aside>
+</div>
+
+<div class="modal-bg" id="modal"><div class="modal"><div class="mhead"><h2 id="modal-title"></h2><button class="btn sm" id="modal-close">Fechar</button></div><div class="mbody" id="modal-body"></div></div></div>
+<div class="toast" id="toast"></div>
+<script type="module" src="/static/js/app.js?v=20261116b"></script>
+</body>
+</html>

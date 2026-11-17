@@ -1,0 +1,236 @@
+{
+  "formato": "FEM-Planetaria",
+  "versao": 1,
+  "app": "Dimensionamento de engrenagens planetárias · FEM/Unicamp · LAMAR",
+  "salvo_em": "2026-11-13T16:38:18",
+  "nome": "Validação Galle (par helicoidal z=15/25, m_n=3, 20MnCr5)",
+  "projeto": {
+    "nome": "Validação Galle (par helicoidal z=15/25, m_n=3, 20MnCr5)",
+    "tipo": "trem",
+    "entrada": {
+      "n": 1000.0,
+      "T": 210.7,
+      "irregularidade_motora": "Choque uniforme",
+      "irregularidade_movida": "Choque moderado",
+      "Ka_imposto": null,
+      "i_alvo": null,
+      "tol_i": null
+    },
+    "operacao": {
+      "Vr": 5000,
+      "T_op": 50,
+      "T_Rmd": 40,
+      "T_Cmd": 30,
+      "C_Cdil": 1e-05,
+      "imersao": "pinhão",
+      "S_Hmin": 1.0,
+      "S_Fmin": 1.1,
+      "S_Hmax": 1.2,
+      "S_Fmax": 1.4,
+      "ISO": 7,
+      "F_B_rolamento": 0.01,
+      "Proj": "Galle",
+      "lubrificante": {
+        "lub_apelido": "Exemplo Galle",
+        "lub_tipo": "Exemplo",
+        "lub_base_quimica": null,
+        "lub_visc_40": 166.6
+      }
+    },
+    "metodos": {
+      "metodo_YF": "B",
+      "metodo_YF_interno": "cortador",
+      "curva_vida": "ISO",
+      "metodo_x": "DIN",
+      "M_BS": null,
+      "Lambda": null
+    },
+    "estagios": [
+      {
+        "nome": "Exemplo galle",
+        "eta": 0.98,
+        "malha": {
+          "tipo": "Otimização",
+          "m_n": 3,
+          "Z_pinhao": 15,
+          "Z_coroa": 25,
+          "alpha_n": 20,
+          "beta": 12,
+          "x_pinhao": 0.341763,
+          "a": 62.5
+        },
+        "pinhao": {
+          "b": 45,
+          "afastamento": "d",
+          "tol": 25,
+          "ASNE_min": null,
+          "ASNE_max": null,
+          "f_chanfro": 0,
+          "f_b": 1.6,
+          "crwon_s": 0,
+          "crwon_i": 0,
+          "op_acabamento": "Retificação",
+          "IQ": 8,
+          "Ra_flanco": 0.834,
+          "Ra_pe": 4.16,
+          "S_M": 0,
+          "Arranjo": 1,
+          "k_linha": null,
+          "di": 10,
+          "bs": 45,
+          "d_sh": 10,
+          "L": 100,
+          "sh": 0,
+          "k_otimi": null,
+          "Dim_sobre_pinos": null,
+          "material": {
+            "mat_apelido": "Exemplo Galle",
+            "mat_composicao": "20MnCr5",
+            "mat_classe_KHbeta": 3,
+            "mat_classe": 13,
+            "mat_classe_Y_Rel": 15,
+            "mat_tipo": "Aço",
+            "mat_rho": 7.83e-06,
+            "mat_Lim_pressao": 1650,
+            "mat_Lim_flexao": 500,
+            "mat_Lim_escoa": 1200,
+            "mat_Lim_tracao": 1200,
+            "mat_E": 206,
+            "mat_Possion": 0.3,
+            "mat_Qualidade": "MQ",
+            "mat_tratamento_termico": "Cementação",
+            "mat_profund_camada_tratamento": 0.6,
+            "mat_dureza_nucleo": "> 40",
+            "mat_dureza_superficial": 60,
+            "mat_coef_dilatacao": 1.15e-05
+          },
+          "ferramenta": {
+            "fer_apelido": "Exemplo GAlle pinhão",
+            "fer_tipo": "Hob",
+            "fer_Z0_hob": 1,
+            "fer_i_hob": 14,
+            "fer_Z_shaper": null,
+            "fer_k_a": 1,
+            "fer_cp_dedendo": 1.25,
+            "fer_rk": 0.6,
+            "fer_pr": 0
+          }
+        },
+        "coroa": {
+          "b": 45,
+          "afastamento": "d",
+          "tol": 25,
+          "ASNE_min": null,
+          "ASNE_max": null,
+          "f_chanfro": 0,
+          "f_b": 1.6,
+          "crwon_s": 0,
+          "crwon_i": 0,
+          "op_acabamento": "Retificação",
+          "IQ": 8,
+          "Ra_flanco": 0.834,
+          "Ra_pe": 4.16,
+          "S_M": 0,
+          "Arranjo": 1,
+          "k_linha": null,
+          "di": 10,
+          "bs": 45,
+          "d_sh": 10,
+          "L": 100,
+          "sh": 0,
+          "k_otimi": null,
+          "Dim_sobre_pinos": null,
+          "material": {
+            "mat_apelido": "Exemplo Galle",
+            "mat_composicao": "20MnCr5",
+            "mat_classe_KHbeta": 3,
+            "mat_classe": 13,
+            "mat_classe_Y_Rel": 15,
+            "mat_tipo": "Aço",
+            "mat_rho": 7.83e-06,
+            "mat_Lim_pressao": 1650,
+            "mat_Lim_flexao": 500,
+            "mat_Lim_escoa": 1200,
+            "mat_Lim_tracao": 1200,
+            "mat_E": 206,
+            "mat_Possion": 0.3,
+            "mat_Qualidade": "MQ",
+            "mat_tratamento_termico": "Cementação",
+            "mat_profund_camada_tratamento": 0.6,
+            "mat_dureza_nucleo": "> 40",
+            "mat_dureza_superficial": 60,
+            "mat_coef_dilatacao": 1.15e-05
+          },
+          "ferramenta": {
+            "fer_apelido": "Exemplo GAlle pinhão",
+            "fer_tipo": "Hob",
+            "fer_Z0_hob": 1,
+            "fer_i_hob": 14,
+            "fer_Z_shaper": null,
+            "fer_k_a": 1,
+            "fer_cp_dedendo": 1.25,
+            "fer_rk": 0.6,
+            "fer_pr": 0
+          }
+        },
+        "analise": {
+          "k": 100.0,
+          "Ck": null,
+          "K_Hbeta_imposto": null
+        }
+      }
+    ],
+    "planetario": null,
+    "layout": {}
+  },
+  "resumo": {
+    "tipo": "trem",
+    "i_total": 1.6666666666666667,
+    "eta_total": 0.98,
+    "calculo_ok": true,
+    "todos_atendem": false,
+    "pior": {
+      "fator": "S_H",
+      "roda": "pinhão",
+      "malha": "Exemplo galle",
+      "valor": 0.8519810816608971,
+      "minimo": 1.0,
+      "status": "ruim"
+    },
+    "problemas": [],
+    "seguranca": [
+      {
+        "malha": "Exemplo galle",
+        "fator": "S_H",
+        "roda": "pinhão",
+        "valor": 0.8519810816608971,
+        "minimo": 1.0,
+        "status": "ruim"
+      },
+      {
+        "malha": "Exemplo galle",
+        "fator": "S_H",
+        "roda": "coroa",
+        "valor": 0.8658480642757668,
+        "minimo": 1.0,
+        "status": "ruim"
+      },
+      {
+        "malha": "Exemplo galle",
+        "fator": "S_F",
+        "roda": "pinhão",
+        "valor": 1.5321261741416428,
+        "minimo": 1.1,
+        "status": "ok"
+      },
+      {
+        "malha": "Exemplo galle",
+        "fator": "S_F",
+        "roda": "coroa",
+        "valor": 1.528839056122307,
+        "minimo": 1.1,
+        "status": "ok"
+      }
+    ]
+  }
+}

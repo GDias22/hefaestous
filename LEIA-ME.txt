@@ -1,0 +1,12 @@
+HEFAESTOUS — Dimensionamento de engrenagens (DIN 3960/3967 · ISO 6336)
+FEM/Unicamp — Laboratório de Máquinas Rotativas (LAMAR) · Desenvolvido por Gabriel Dias
+
+COMO INSTALAR (Windows 10/11, 64 bits)
+  1. Dê dois cliques em  Instalar_HEFAESTOUS.exe
+  2. Escolha a pasta (o padrão não exige administrador) e clique em Instalar.
+     O instalador baixa o Python 3.13 e as bibliotecas (~400 MB; precisa de internet) — leva alguns minutos.
+  3. Use o atalho HEFAESTOUS criado na Área de Trabalho.
+
+Se o Windows SmartScreen avisar "editor desconhecido": Mais informações → Executar assim mesmo.
+Para desinstalar: Configurações › Aplicativos › HEFAESTOUS.
+Detalhes e instalação sem internet: INSTALAR.md
