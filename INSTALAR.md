@@ -35,7 +35,18 @@ Coloque, dentro de `instalador\`, antes de distribuir:
 
 O instalador detecta esses arquivos e não acessa a rede.
 
-## Repositórios (GitLab Unicamp)
+## Atualização automática (padrão Argus)
+
+Ao abrir, o HEFAESTOUS consulta `instalador/versao.json` no repositório público (GitHub `GDias22/hefaestous`, via API). Se a versão
+de lá for maior que a instalada, aparece a faixa **"Nova versão vX.Y.Z disponível"** no topo com **Atualizar agora** e **Depois**.
+*Atualizar agora* baixa o ZIP da branch `main`, valida, grava `atualizar.bat` na pasta de instalação, encerra o servidor (o lançador cai
+junto) e o `.bat` troca `web\`, `*.py`, `Figuras\`, `Exemplos_fem\`, `instalador\`, `*.exe` e docs, preservando `runtime\` (Python e
+bibliotecas), `web\sessions`, `erros.txt` e `logs\`; se `requirements.txt` mudou, roda `pip install -r`; e reabre o HEFAESTOUS. Sem
+internet a verificação falha em silêncio. Em cópia de desenvolvimento (sem `runtime\`) a faixa só oferece o link para baixar.
+Para publicar uma versão nova: edite `instaladorersao.json` (campo `versao`, e `notas` opcional) e rode `publicar.bat` — ele envia
+para o GitLab e para o GitHub. Endpoints: `GET /api/update/check`, `POST /api/update/apply` (`webackendtualizacao.py`).
+
+## Repositórios (GitLab Unicamp + GitHub)
 
 - **Desenvolvimento** (privado): https://gitlab.unicamp.br/pessoal/projetos-eldorado — toda a pasta `Dias` (binários em Git LFS).
 - **Produção** (interno à Unicamp*): https://gitlab.unicamp.br/pessoal/hefaestous — só a pasta de distribuição. É daqui que o usuário
@@ -43,8 +54,11 @@ O instalador detecta esses arquivos e não acessa a rede.
   commit "HEFAESTOUS vX.Y.Z" com a versão de `instaladorersao.json`, push). Autenticação por HTTPS com a credencial salva do Windows
   ou a variável `GITLAB_TOKEN`.
 
+- **Espelho público** (GitHub): https://github.com/GDias22/hefaestous — mesmo conteúdo da produção; `publicar.bat` envia para os dois.
+  É a fonte da atualização automática e o link para quem está fora da Unicamp.
+
   \* O administrador do GitLab da Unicamp bloqueia a visibilidade *public*; *internal* (qualquer usuário logado da Unicamp) é o
-  máximo permitido. Para distribuir fora da Unicamp, espelhar o repo de produção no GitHub (`git remote add github …; git push github main`).
+  máximo permitido — por isso o espelho no GitHub.
 
 ## Para quem vai DISTRIBUIR / desenvolver
 

@@ -116,6 +116,12 @@ def main():
     base = pasta()
     py = interpretador(base)
     app = os.path.join(base, "web", "app.py")
+    # restos de uma atualização automática concluída (o .bat não consegue se apagar enquanto roda)
+    for resto in ("atualizar.bat",):
+        try:
+            os.remove(os.path.join(base, resto))
+        except OSError:
+            pass
     root = tk.Tk(); root.title(APP); root.resizable(False, False)
     ico = os.path.join(base, "web", "frontend", "img", "hefaestous.ico")
     if os.path.exists(ico):
