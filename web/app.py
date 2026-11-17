@@ -33,7 +33,7 @@ def create_app():
     _logs.instalar(app)          # logs\servidor.log + erros.txt (histórico de problemas) na pasta de instalação
     for r in (meta.router, geometria.router, tensoes.router):
         app.include_router(r)
-    for nome in ("cinematica", "perfil", "export", "projeto", "docs", "fem"):
+    for nome in ("cinematica", "perfil", "export", "projeto", "docs", "fem", "atualizacao"):
         mod = __import__(f"backend.api.{nome}", fromlist=["router"])
         app.include_router(mod.router)
 

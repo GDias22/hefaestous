@@ -42,4 +42,6 @@ export const api = {
   sensibilidade: (body) => req('POST', '/api/projeto/sensibilidade', body),
   docs: (chave) => req('GET', `/api/docs/${chave}`),
   docsIndex: () => req('GET', '/api/docs'),
+  updateCheck: (forcar = false) => req('GET', `/api/update/check${forcar ? '?forcar=true' : ''}`),
+  updateApply: () => req('POST', '/api/update/apply'),
 };

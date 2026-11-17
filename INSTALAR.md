@@ -35,6 +35,17 @@ Coloque, dentro de `instalador\`, antes de distribuir:
 
 O instalador detecta esses arquivos e não acessa a rede.
 
+## Repositórios (GitLab Unicamp)
+
+- **Desenvolvimento** (privado): https://gitlab.unicamp.br/pessoal/projetos-eldorado — toda a pasta `Dias` (binários em Git LFS).
+- **Produção** (interno à Unicamp*): https://gitlab.unicamp.br/pessoal/hefaestous — só a pasta de distribuição. É daqui que o usuário
+  baixa o ZIP. Publicar = `publicar.bat` nesta pasta (monta a distribuição, espelha no clone local `Dias\_producao\hefaestous`,
+  commit "HEFAESTOUS vX.Y.Z" com a versão de `instaladorersao.json`, push). Autenticação por HTTPS com a credencial salva do Windows
+  ou a variável `GITLAB_TOKEN`.
+
+  \* O administrador do GitLab da Unicamp bloqueia a visibilidade *public*; *internal* (qualquer usuário logado da Unicamp) é o
+  máximo permitido. Para distribuir fora da Unicamp, espelhar o repo de produção no GitHub (`git remote add github …; git push github main`).
+
 ## Para quem vai DISTRIBUIR / desenvolver
 
 - **Pasta de distribuição**: `web\.venv313\Scripts\python.exe instalador\montar_distribuicao.py --zip` monta (apagando a anterior) a pasta

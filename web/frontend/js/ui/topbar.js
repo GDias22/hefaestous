@@ -16,6 +16,30 @@ export function init() {
   document.getElementById('b-abrir').addEventListener('click', abrirFem);
   document.getElementById('b-relatorio').addEventListener('click', relatorio);
   document.getElementById('b-export').addEventListener('click', exportar);
+  verificarAtualizacao();
+}
+
+/** Padrão Argus: consulta o repositório de produção ao abrir; se há versão maior, mostra a faixa "Nova versão" no topo com
+ *  "Atualizar agora" (baixa, troca os arquivos e reabre sozinho) e "Depois" (esconde até a próxima abertura). Offline: silencioso. */
+async function verificarAtualizacao() {
+  const box = document.getElementById('upd'); if (!box) return;
+  let r; try { r = await api.updateCheck(); } catch { return; }
+  if (!r || !r.disponivel) return;
+  if (sessionStorage.getItem('engr.upd.depois') === r.remota) return;
+  box.querySelector('.upd-txt').innerHTML = `Nova versão <b>v${r.remota}</b> disponível (você usa v${r.atual})${r.pode_aplicar ? '' : ` · <a href="${r.pagina}" target="_blank" rel="noopener">baixar</a>`}`;
+  const b = document.getElementById('upd-aplicar');
+  if (!r.pode_aplicar) b.classList.add('hidden');
+  b.addEventListener('click', async () => {
+    if (!confirm(`Atualizar o HEFAESTOUS para a v${r.remota}?\n\nProjetos não gravados em .fem serão perdidos. O programa vai fechar e reabrir sozinho em alguns segundos.`)) return;
+    b.disabled = true; b.textContent = 'Baixando…';
+    try {
+      const a = await api.updateApply();
+      box.querySelector('.upd-txt').textContent = a.mensagem; b.classList.add('hidden'); document.getElementById('upd-depois').classList.add('hidden');
+      document.body.style.pointerEvents = 'none'; document.body.style.opacity = '.6';
+    } catch (e) { b.disabled = false; b.textContent = 'Atualizar agora'; toast(e.message, true, 9000); }
+  });
+  document.getElementById('upd-depois').addEventListener('click', () => { sessionStorage.setItem('engr.upd.depois', r.remota); box.classList.add('hidden'); });
+  box.classList.remove('hidden');
 }
 
 /** Relatório e exportações xlsx/json são gerados no servidor a partir de uma sessão interna (não é o arquivo do usuário). */
