@@ -1,5 +1,5 @@
 {
-  "versao": "1.1.5",
-  "data": "2026-11-17",
-  "notas": "Atualização automática robusta: troca por espelhamento (robocopy /MIR), sem aninhar web\\web se um arquivo estiver aberto; verificação final e registro em erros.txt. "
+  "versao": "1.1.6",
+  "data": "2026-11-25",
+  "notas": "Sem a janelinha ao abrir: o HEFAESTOUS.exe só abre o navegador; o servidor roda invisível e se encerra sozinho quando a última aba fecha. Instalador: corrige a falha 'No module named setuptools' ao instalar as dependências (fpdf só existe como código-fonte e o build isolado do pip não funciona no Python embeddable); erro mostra as últimas linhas da saída e tudo fica em logs\\instalacao.log."
 }

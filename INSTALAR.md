@@ -12,12 +12,14 @@ FEM/Unicamp — Laboratório de Máquinas Rotativas (LAMAR) · Desenvolvido por 
      bibliotecas necessárias (~400 MB, inclui o kernel CAD para STEP/STL). Precisa de internet; leva alguns minutos.
    - Ao final cria o atalho **HEFAESTOUS** na Área de Trabalho e no Menu Iniciar e registra o programa em
      *Configurações › Aplicativos* (para desinstalar).
-3. Abra pelo atalho. Aparece uma janelinha com o endereço local (`http://127.0.0.1:8765/`) e o navegador abre sozinho.
-   Deixe a janelinha aberta enquanto usa; fechá-la encerra o servidor.
+3. Abra pelo atalho. O navegador abre sozinho em `http://127.0.0.1:8765/`; não aparece nenhuma outra janela.
+   O servidor local roda invisível e se encerra sozinho alguns segundos depois que a última aba do HEFAESTOUS é fechada.
 
 Nada do seu Python ou de outros programas é alterado: tudo fica dentro da pasta de instalação.
 
 **Deu problema?** Não aparece nenhum terminal: o programa grava tudo em arquivo, na pasta de instalação.
+- `logs\instalacao.log` — tudo o que o instalador fez e, se falhou, o erro completo (a janela mostra só as últimas linhas).
+  Se a instalação falhou por internet instável, basta clicar em **Instalar** de novo: o que já foi baixado é aproveitado.
 - `erros.txt` — histórico legível dos problemas (data/hora, o que estava sendo feito, mensagem e detalhes). É o arquivo para enviar
   junto com um relato de erro.
 - `logs\servidor.log` — log completo do servidor (requisições, avisos, tracebacks); rotaciona em 5 MB.
@@ -32,6 +34,7 @@ Coloque, dentro de `instalador\`, antes de distribuir:
 - `python-3.13.9-embed-amd64.zip` (de https://www.python.org/ftp/python/3.13.9/)
 - `get-pip.py` (de https://bootstrap.pypa.io/get-pip.py)
 - a pasta `wheels\` com as dependências: `web\.venv313\Scripts\python.exe -m pip download -r web\requirements.txt -d instalador\wheels`
+  e também `... -m pip download setuptools wheel -d instalador\wheels` (o instalador os põe no runtime antes das dependências).
 
 O instalador detecta esses arquivos e não acessa a rede.
 
@@ -92,6 +95,10 @@ para o GitLab e para o GitHub. Endpoints: `GET /api/update/check`, `POST /api/up
   Desinstalar.bat
 ```
 
-O servidor é um processo filho do lançador dentro de um Job Object do Windows: encerrar o lançador (botão, X da janela,
-Gerenciador de Tarefas ou logoff) encerra o servidor. Se já houver um HEFAESTOUS rodando na porta 8765, o lançador só abre o
-navegador; se a porta estiver ocupada por outro programa, usa a próxima livre.
+O lançador não tem janela. Ele sobe o servidor com `--auto-encerrar`, abre o navegador e fica invisível, esperando. O servidor é um
+processo filho dentro de um Job Object do Windows: se o lançador morrer (Gerenciador de Tarefas, logoff), o servidor morre junto.
+A página manda um batimento (`POST /api/vida/ping`) a cada 5 s e `POST /api/vida/adeus` ao fechar; o servidor se encerra quando
+fica 6 s sem ping depois de um adeus (um F5 pinga de novo antes disso), 45 s sem ping algum, ou 3 min sem o primeiro ping
+(`web\backend\api\vida.py`). Com o servidor encerrado o lançador termina. Em desenvolvimento (`run.bat`, sem a flag) o servidor
+não se encerra sozinho. Se já houver um HEFAESTOUS rodando na porta 8765, o lançador só abre mais uma aba; se a porta estiver
+ocupada por outro programa, usa a próxima livre. Erros do lançador: `erros.txt` e uma caixa de mensagem do Windows.

@@ -119,7 +119,9 @@ if not exist "web\app.py" (
 )
 if "{instalar_deps}"=="1" (
   echo Atualizando bibliotecas Python...
-  "runtime\python.exe" -m pip install --quiet --disable-pip-version-check --no-warn-script-location -r "web\requirements.txt"
+  rem setuptools/wheel no runtime (instalacoes antigas nao os tem) + --no-build-isolation: pacotes so em codigo-fonte (fpdf)
+  "runtime\python.exe" -m pip install --quiet --disable-pip-version-check --no-warn-script-location setuptools wheel
+  "runtime\python.exe" -m pip install --quiet --disable-pip-version-check --no-warn-script-location --no-build-isolation -r "web\requirements.txt"
 )
 echo Atualizado para v{versao}. Abrindo o HEFAESTOUS...
 start "" "HEFAESTOUS.exe"

@@ -33,7 +33,7 @@ def create_app():
     _logs.instalar(app)          # logs\servidor.log + erros.txt (histórico de problemas) na pasta de instalação
     for r in (meta.router, geometria.router, tensoes.router):
         app.include_router(r)
-    for nome in ("cinematica", "perfil", "export", "projeto", "docs", "fem", "atualizacao"):
+    for nome in ("cinematica", "perfil", "export", "projeto", "docs", "fem", "atualizacao", "vida"):
         mod = __import__(f"backend.api.{nome}", fromlist=["router"])
         app.include_router(mod.router)
 
@@ -127,6 +127,7 @@ def main():
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--no-browser", action="store_true")
     ap.add_argument("--reload", action="store_true")
+    ap.add_argument("--auto-encerrar", action="store_true", help="encerra o servidor quando a última aba da interface fechar (usado pelo HEFAESTOUS.exe)")
     args = ap.parse_args()
     if not args.reload:
         _relaunch_in_venv()
@@ -156,7 +157,11 @@ def main():
         if args.reload:
             uvicorn.run("app:create_app", factory=True, host=args.host, port=port, reload=True, app_dir=HERE)
         else:
-            uvicorn.run(create_app(), host=args.host, port=port, log_level="info")
+            app = create_app()
+            if args.auto_encerrar:
+                from backend.api import vida
+                vida.ativar()
+            uvicorn.run(app, host=args.host, port=port, log_level="info")
     except KeyboardInterrupt:
         pass
 

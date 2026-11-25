@@ -44,4 +44,5 @@ export const api = {
   docsIndex: () => req('GET', '/api/docs'),
   updateCheck: (forcar = false) => req('GET', `/api/update/check${forcar ? '?forcar=true' : ''}`),
   updateApply: () => req('POST', '/api/update/apply'),
+  vidaPing: () => req('POST', '/api/vida/ping'),
 };

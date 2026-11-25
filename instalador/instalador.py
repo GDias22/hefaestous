@@ -16,6 +16,7 @@ Uso silencioso (automação/testes):  Instalar_HEFAESTOUS.exe --silent --dest <p
 Compilação: instalador\\build.bat (PyInstaller, no venv web\\.venv313).
 """
 import argparse
+import collections
 import json
 import os
 import shutil
@@ -76,19 +77,40 @@ def destino_padrao():
 class Instalacao:
     def __init__(self, src, dest, atalhos=True, log=print, progresso=lambda frac, txt: None):
         self.src, self.dest, self.atalhos = src, os.path.abspath(dest), atalhos
-        self.log, self.prog = log, progresso
+        self._log, self.prog = log, progresso
         self.py = os.path.join(self.dest, "runtime", "python.exe")
+        self._fh = None
+
+    def log(self, txt, transient=False):
+        """Escreve na interface/console e também em <instalação>\\logs\\instalacao.log (o arquivo para enviar num relato de erro)."""
+        if transient:
+            self._log(txt, transient=True); return
+        self._log(txt)
+        if self._fh:
+            try:
+                self._fh.write(txt + "\n"); self._fh.flush()
+            except Exception:  # noqa: BLE001
+                pass
 
     def run(self):
-        etapas = [("Copiando a aplicação", self.copiar), ("Baixando o Python 3.13", self.python),
-                  ("Instalando o pip", self.pip), ("Instalando as dependências (pode levar alguns minutos)", self.dependencias),
-                  ("Verificando", self.verificar), ("Criando atalhos e registro", self.registrar)]
-        for i, (nome, fn) in enumerate(etapas):
-            self.prog(i / len(etapas), nome)
-            self.log(f"\n== {nome}")
-            fn()
-        self.prog(1.0, "Concluído")
-        self.log(f"\nInstalação concluída em {self.dest}")
+        os.makedirs(os.path.join(self.dest, "logs"), exist_ok=True)
+        self._fh = open(os.path.join(self.dest, "logs", "instalacao.log"), "a", encoding="utf-8")
+        self._fh.write(f"\n===== {time.strftime('%Y-%m-%d %H:%M:%S')} — instalação do {APP} v{versao(self.src)} em {self.dest}\n")
+        try:
+            etapas = [("Copiando a aplicação", self.copiar), ("Baixando o Python 3.13", self.python),
+                      ("Instalando o pip", self.pip), ("Instalando as dependências (pode levar alguns minutos)", self.dependencias),
+                      ("Verificando", self.verificar), ("Criando atalhos e registro", self.registrar)]
+            for i, (nome, fn) in enumerate(etapas):
+                self.prog(i / len(etapas), nome)
+                self.log(f"\n== {nome}")
+                fn()
+            self.prog(1.0, "Concluído")
+            self.log(f"\nInstalação concluída em {self.dest}")
+        except Exception as ex:  # noqa: BLE001
+            self.log("\nERRO: " + str(ex)); self.log(traceback.format_exc())
+            raise
+        finally:
+            self._fh.close(); self._fh = None
 
     # 1 ----------------------------------------------------------------------------------------
     def copiar(self):
@@ -152,24 +174,37 @@ class Instalacao:
     # 3 ----------------------------------------------------------------------------------------
     def pip(self):
         if self._ok([self.py, "-m", "pip", "--version"]):
-            self.log("   pip já disponível"); return
-        gp = os.path.join(self.dest, "runtime", "get-pip.py")
-        local = os.path.join(self.src, "instalador", "get-pip.py")
-        if os.path.exists(local):
-            shutil.copy2(local, gp)
+            self.log("   pip já disponível")
         else:
-            self._baixar(GETPIP_URL, gp)
-        self._rodar([self.py, gp, "--no-warn-script-location", "--quiet"])
-        os.remove(gp)
+            gp = os.path.join(self.dest, "runtime", "get-pip.py")
+            local = os.path.join(self.src, "instalador", "get-pip.py")
+            if os.path.exists(local):
+                shutil.copy2(local, gp)
+            else:
+                self._baixar(GETPIP_URL, gp)
+            self._rodar([self.py, gp, "--no-warn-script-location", "--quiet"])
+            os.remove(gp)
+        # setuptools + wheel no próprio runtime: pacotes publicados só como código-fonte (ex.: fpdf 1.7.2) precisam ser
+        # compilados, e o build isolado do pip não funciona no Python embeddable (o ._pth faz o interpretador ignorar o
+        # PYTHONPATH do ambiente de build → "No module named 'setuptools'"). Com eles instalados, usa-se --no-build-isolation.
+        cmd = [self.py, "-m", "pip", "install", "--no-warn-script-location", "--disable-pip-version-check", "--quiet", "setuptools", "wheel"]
+        wheels = self._wheels()
+        if wheels:
+            cmd += ["--no-index", "--find-links", wheels]
+        self._rodar(cmd)
 
     # 4 ----------------------------------------------------------------------------------------
     def dependencias(self):
         req = os.path.join(self.dest, "web", "requirements.txt")
-        cmd = [self.py, "-m", "pip", "install", "--no-warn-script-location", "--disable-pip-version-check", "-r", req]
-        wheels = os.path.join(self.src, "instalador", "wheels")
-        if os.path.isdir(wheels) and os.listdir(wheels):
+        cmd = [self.py, "-m", "pip", "install", "--no-warn-script-location", "--disable-pip-version-check", "--no-build-isolation", "-r", req]
+        wheels = self._wheels()
+        if wheels:
             cmd += ["--no-index", "--find-links", wheels]; self.log("   modo offline: wheels de " + wheels)
         self._rodar(cmd)
+
+    def _wheels(self):
+        w = os.path.join(self.src, "instalador", "wheels")
+        return w if os.path.isdir(w) and os.listdir(w) else None
 
     # 5 ----------------------------------------------------------------------------------------
     def verificar(self):
@@ -224,13 +259,15 @@ class Instalacao:
     def _rodar(self, cmd):
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, text=True,
                              encoding="utf-8", errors="replace", creationflags=CREATE_NO_WINDOW, cwd=self.dest, env=_env_limpo())
+        cauda = collections.deque(maxlen=15)
         for linha in p.stdout:
             linha = linha.rstrip()
             if linha:
-                self.log("   " + linha)
+                self.log("   " + linha); cauda.append(linha)
         p.wait()
         if p.returncode != 0:
-            raise RuntimeError(f"comando falhou ({p.returncode}): {' '.join(cmd[:3])} …")
+            nome = os.path.basename(cmd[0]) + " " + " ".join(cmd[1:4])
+            raise RuntimeError(f"comando falhou (código {p.returncode}): {nome}\n\nÚltimas linhas da saída:\n" + "\n".join(cauda))
 
     def _saida(self, cmd):
         return subprocess.run(cmd, capture_output=True, text=True, encoding="utf-8", errors="replace", creationflags=CREATE_NO_WINDOW, check=True, stdin=subprocess.DEVNULL, env=_env_limpo()).stdout
@@ -312,8 +349,11 @@ def gui(src):
                         subprocess.Popen([os.path.join(inst.dest, "runtime", "pythonw.exe"), os.path.join(inst.dest, "web", "app.py")], cwd=inst.dest, creationflags=CREATE_NO_WINDOW, env=_env_limpo())
                 root.after(0, lambda: (fechar.configure(text="Fechar", state="normal"), messagebox.showinfo(APP, f"Instalado em\n{inst.dest}\n\nAtalho na Área de Trabalho: {APP}")))
             except Exception as ex:  # noqa: BLE001
-                escreve("\nERRO: " + str(ex)); escreve(traceback.format_exc()[-800:])
-                root.after(0, lambda: (btn.configure(state="normal"), fechar.configure(state="normal"), messagebox.showerror(APP, f"A instalação falhou:\n{ex}")))
+                arq = os.path.join(os.path.abspath(dest.get()), "logs", "instalacao.log")
+                root.after(0, lambda: (btn.configure(state="normal"), fechar.configure(state="normal"),
+                                       messagebox.showerror(APP, f"A instalação falhou:\n\n{ex}\n\nLog completo em:\n{arq}\n\n"
+                                                                 "Verifique a conexão com a internet e clique em Instalar para tentar de novo "
+                                                                 "(o que já foi baixado é aproveitado).")))
         threading.Thread(target=trabalho, daemon=True).start()
 
     btn.configure(command=iniciar)
@@ -343,8 +383,8 @@ def main():
                 pass
     try:
         Instalacao(src, a.dest or destino_padrao(), not a.sem_atalhos, log).run()
-    except Exception as ex:  # noqa: BLE001
-        log("ERRO: " + str(ex)); log(traceback.format_exc()); sys.exit(1)
+    except Exception:  # noqa: BLE001
+        sys.exit(1)
     finally:
         if fh:
             fh.close()

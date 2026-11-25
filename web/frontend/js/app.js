@@ -143,8 +143,19 @@ export async function carregar(id) {
   toast(`Projeto "${r.titulo}" carregado (sessão do servidor)`);
 }
 
+// ---------- batimento: o servidor iniciado pelo HEFAESTOUS.exe se encerra quando a última aba fecha ----------
+function iniciarBatimento() {
+  const bate = () => { api.vidaPing().catch(() => {}); };
+  bate(); setInterval(bate, 5000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) bate(); });
+  window.addEventListener('pagehide', () => {
+    try { navigator.sendBeacon('/api/vida/adeus'); } catch { /* ignore */ }
+  });
+}
+
 // ---------- boot ----------
 async function boot() {
+  iniciarBatimento();
   try {
     const [meta, presets, vocab] = await Promise.all([api.meta(), api.presets(), api.projetoVocabulario()]);
     S.meta = meta; S.presets = presets; S.vocab = vocab;

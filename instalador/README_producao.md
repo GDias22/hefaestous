@@ -74,8 +74,8 @@ A tela se organiza em três colunas:
 Modo **Guiado** percorre as etapas uma a uma com explicações; modo **Livre** deixa tudo acessível.
 
 Por dentro, é um servidor local em Python (FastAPI) com os módulos de cálculo validados nos cadernos de projeto, e uma interface em
-HTML/JavaScript que abre em `http://127.0.0.1:8765/`. O CAD usa o kernel OpenCascade (build123d). A janelinha que abre junto mostra o
-endereço e encerra o servidor quando fechada. Problemas ficam registrados em `erros.txt` e `logs\servidor.log` na pasta de instalação.
+HTML/JavaScript que abre em `http://127.0.0.1:8765/`. O CAD usa o kernel OpenCascade (build123d). O servidor roda invisível e se
+encerra sozinho quando a última aba do HEFAESTOUS é fechada. Problemas ficam registrados em `erros.txt` e `logs\servidor.log` na pasta de instalação; os do instalador, em `logs\instalacao.log`.
 
 ---
 

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
-"""HEFAESTOUS.exe — lançador do aplicativo (janela pequena + servidor local + navegador).
+"""HEFAESTOUS.exe — lançador do aplicativo, SEM janela: sobe o servidor local e abre o navegador.
 
 Procura o interpretador em <pasta>\\runtime\\python.exe (instalação feita pelo Instalar_HEFAESTOUS.exe) ou, no
-ambiente de desenvolvimento, em web\\.venv313\\Scripts\\python.exe; sobe web/app.py sem console, espera o servidor
-responder, abre o navegador e mostra uma janela com o endereço e os botões "Abrir no navegador" e "Encerrar".
-Fechar a janela encerra o servidor. Se o servidor já estiver rodando (outra instância), só abre o navegador.
+ambiente de desenvolvimento, em web\\.venv313\\Scripts\\python.exe; sobe web/app.py sem console (com --auto-encerrar),
+espera o servidor responder e abre o navegador. Não mostra nada: o processo fica invisível enquanto o servidor viver, e o
+servidor se encerra sozinho quando a última aba da interface fechar (web/backend/api/vida.py). Se o servidor já estiver
+rodando (outra instância), só abre mais uma aba. Erros: erros.txt + uma caixa de mensagem do Windows.
 Compilação: instalador\\build.bat (PyInstaller --noconsole, ícone hefaestous.ico).
 """
 import os
 import socket
 import subprocess
 import sys
-import threading
 import time
 import urllib.request
 import webbrowser
@@ -109,10 +109,16 @@ def ultimas_linhas(caminho, n=40):
         return ""
 
 
-def main():
-    import tkinter as tk
-    from tkinter import messagebox, ttk
+def _erro_dialogo(texto):
+    """Caixa de mensagem nativa do Windows (sem Tk): o único momento em que o lançador mostra algo."""
+    try:
+        import ctypes
+        ctypes.windll.user32.MessageBoxW(None, texto, APP, 0x10 | 0x40000)   # MB_ICONERROR | MB_TOPMOST
+    except Exception:  # noqa: BLE001
+        pass
 
+
+def main():
     base = pasta()
     py = interpretador(base)
     app = os.path.join(base, "web", "app.py")
@@ -122,99 +128,72 @@ def main():
             os.remove(os.path.join(base, resto))
         except OSError:
             pass
-    root = tk.Tk(); root.title(APP); root.resizable(False, False)
-    ico = os.path.join(base, "web", "frontend", "img", "hefaestous.ico")
-    if os.path.exists(ico):
+    if not py or not os.path.exists(app):
+        registrar_erro(base, "instalação incompleta", f"python: {py}\napp: {app} (existe: {os.path.exists(app)})")
+        _erro_dialogo("Instalação incompleta: runtime\\python.exe ou web\\app.py não encontrados.\n\nExecute o Instalar_HEFAESTOUS.exe novamente.")
+        return 1
+    host, porta = "127.0.0.1", 8765
+    if not porta_livre(host, porta):
+        url = f"http://{host}:{porta}/"
+        if e_nosso(url):            # já está rodando (outra instância): só abre mais uma aba
+            webbrowser.open(url); return 0
+        for cand in range(porta + 1, porta + 20):
+            if porta_livre(host, cand):
+                porta = cand; break
+    url = f"http://{host}:{porta}/"
+    logs_dir = os.path.join(base, "logs"); os.makedirs(logs_dir, exist_ok=True)
+    log_path = os.path.join(logs_dir, "servidor.log")
+    # stdout/stderr do servidor (uvicorn + tracebacks) vão para logs\servidor.log; o app também escreve erros.txt (backend/logs.py)
+    logf = open(log_path, "a", encoding="utf-8", errors="replace")
+    logf.write("\n===== HEFAESTOUS iniciado em " + time.strftime("%Y-%m-%d %H:%M:%S") + " - " + py + " =====\n"); logf.flush()
+    # sem as variáveis do PyInstaller (PYTHONHOME/PYTHONPATH…), senão o runtime embeddable carrega módulos do .exe
+    env = {k: v for k, v in os.environ.items() if not k.upper().startswith(("PYTHON", "VIRTUAL_ENV", "_PYI", "PYI_", "TCL_", "TK_"))}
+    env.update(PYTHONIOENCODING="utf-8", PYTHONUTF8="1", PYTHONUNBUFFERED="1", HEFAESTOUS_HOME=base)
+    job = _job_kill_on_close()
+    try:
+        # --auto-encerrar: o servidor se encerra sozinho quando a última aba do navegador fechar (web/backend/api/vida.py)
+        proc = subprocess.Popen([py, app, "--no-browser", "--auto-encerrar", "--host", host, "--port", str(porta)], cwd=os.path.join(base, "web"),
+                                stdout=logf, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, creationflags=CREATE_NO_WINDOW, env=env)
+    except Exception as ex:  # noqa: BLE001
+        registrar_erro(base, "não foi possível iniciar o servidor", repr(ex))
+        _erro_dialogo("Não foi possível iniciar o servidor.\n\nVeja erros.txt na pasta do programa.")
+        return 1
+    _assign_job(job, proc)
+    for _ in range(120):
+        if proc.poll() is not None:
+            logf.flush()
+            registrar_erro(base, f"o servidor encerrou ao iniciar (código {proc.returncode})", ultimas_linhas(log_path))
+            _erro_dialogo("O servidor encerrou com erro ao iniciar.\n\nVeja erros.txt na pasta do programa.")
+            return 1
         try:
-            root.iconbitmap(ico)
+            urllib.request.urlopen(url, timeout=1).read(10)
+            break
+        except Exception:  # noqa: BLE001
+            time.sleep(0.5)
+    else:
+        registrar_erro(base, "o servidor não respondeu em 60 s", ultimas_linhas(log_path))
+        _erro_dialogo("O servidor não respondeu em 60 s.\n\nVeja erros.txt na pasta do programa.")
+        try:
+            proc.terminate()
         except Exception:  # noqa: BLE001
             pass
-    frm = ttk.Frame(root, padding=16); frm.grid()
-    ttk.Label(frm, text=APP, font=("Segoe UI", 15, "bold")).grid(row=0, column=0, columnspan=2, sticky="w")
-    ttk.Label(frm, text="Dimensionamento de engrenagens · FEM/Unicamp — LAMAR", foreground="#555").grid(row=1, column=0, columnspan=2, sticky="w", pady=(0, 10))
-    status = tk.StringVar(value="Iniciando o servidor…")
-    ttk.Label(frm, textvariable=status, wraplength=420).grid(row=2, column=0, columnspan=2, sticky="w")
-    url_var = tk.StringVar(value="")
-    link = ttk.Label(frm, textvariable=url_var, foreground="#0b4fa8", cursor="hand2"); link.grid(row=3, column=0, columnspan=2, sticky="w", pady=(2, 10))
-    b_abrir = ttk.Button(frm, text="Abrir no navegador", state="disabled"); b_abrir.grid(row=4, column=0, sticky="w")
-    b_sair = ttk.Button(frm, text="Encerrar"); b_sair.grid(row=4, column=1, sticky="e", padx=(10, 0))
-    ttk.Label(frm, text="Deixe esta janela aberta enquanto usa o programa. Fechá-la encerra o servidor.\nEm caso de problema, veja erros.txt na pasta do programa.", foreground="#777", font=("Segoe UI", 8)).grid(row=5, column=0, columnspan=2, sticky="w", pady=(10, 0))
-
-    logs_dir = os.path.join(base, "logs")
-    log_path = os.path.join(logs_dir, "servidor.log")
-    estado = {"proc": None, "url": None, "job": _job_kill_on_close()}
-
-    def abrir():
-        if estado["url"]:
-            webbrowser.open(estado["url"])
-    b_abrir.configure(command=abrir); link.bind("<Button-1>", lambda e: abrir())
-
-    def encerrar():
-        p = estado["proc"]
-        if p and p.poll() is None:
-            try:
-                p.terminate(); p.wait(5)
-            except Exception:  # noqa: BLE001
-                try:
-                    p.kill()
-                except Exception:  # noqa: BLE001
-                    pass
-        root.destroy()
-    b_sair.configure(command=encerrar); root.protocol("WM_DELETE_WINDOW", encerrar)
-
-    def pronto(url):
-        estado["url"] = url; url_var.set(url); status.set("Servidor em execução."); b_abrir.configure(state="normal"); webbrowser.open(url)
-
-    def iniciar():
-        if not py or not os.path.exists(app):
-            registrar_erro(base, "instalação incompleta", f"python: {py}\napp: {app} (existe: {os.path.exists(app)})")
-            root.after(0, lambda: (status.set("Instalação incompleta: runtime\\python.exe ou web\\app.py não encontrados.\nExecute o Instalar_HEFAESTOUS.exe novamente."), b_sair.configure(text="Fechar")))
-            return
-        host, porta = "127.0.0.1", 8765
-        if not porta_livre(host, porta):
-            url = f"http://{host}:{porta}/"
-            if e_nosso(url):
-                root.after(0, lambda: (status.set("O HEFAESTOUS já estava em execução (outra janela)."), pronto(url)))
-                return
-            for cand in range(porta + 1, porta + 20):
-                if porta_livre(host, cand):
-                    porta = cand; break
-        url = f"http://{host}:{porta}/"
-        os.makedirs(logs_dir, exist_ok=True)
-        # stdout/stderr do servidor (uvicorn + tracebacks) vão para logs\servidor.log; o app também escreve erros.txt (backend/logs.py)
-        logf = open(log_path, "a", encoding="utf-8", errors="replace")
-        logf.write("\n===== HEFAESTOUS iniciado em " + time.strftime("%Y-%m-%d %H:%M:%S") + " - " + py + " =====\n"); logf.flush()
-        # sem as variáveis do PyInstaller (PYTHONHOME/PYTHONPATH…), senão o runtime embeddable carrega módulos do .exe
-        env = {k: v for k, v in os.environ.items() if not k.upper().startswith(("PYTHON", "VIRTUAL_ENV", "_PYI", "PYI_", "TCL_", "TK_"))}
-        env.update(PYTHONIOENCODING="utf-8", PYTHONUTF8="1", PYTHONUNBUFFERED="1", HEFAESTOUS_HOME=base)
-        try:
-            estado["proc"] = subprocess.Popen([py, app, "--no-browser", "--host", host, "--port", str(porta)], cwd=os.path.join(base, "web"),
-                                              stdout=logf, stderr=subprocess.STDOUT, stdin=subprocess.DEVNULL, creationflags=CREATE_NO_WINDOW, env=env)
-        except Exception as ex:  # noqa: BLE001
-            registrar_erro(base, "não foi possível iniciar o servidor", repr(ex))
-            root.after(0, lambda: (status.set("Não foi possível iniciar o servidor. Veja erros.txt na pasta do programa."), b_sair.configure(text="Fechar")))
-            return
-        _assign_job(estado["job"], estado["proc"])
-        for _ in range(120):
-            if estado["proc"].poll() is not None:
-                logf.flush()
-                registrar_erro(base, f"o servidor encerrou ao iniciar (código {estado['proc'].returncode})", ultimas_linhas(log_path))
-                root.after(0, lambda: (status.set("O servidor encerrou com erro. Veja erros.txt na pasta do programa."), b_sair.configure(text="Fechar")))
-                return
-            try:
-                urllib.request.urlopen(url, timeout=1).read(10)
-                root.after(0, lambda: pronto(url)); return
-            except Exception:  # noqa: BLE001
-                time.sleep(0.5)
-        registrar_erro(base, "o servidor não respondeu em 60 s", ultimas_linhas(log_path))
-        root.after(0, lambda: status.set("O servidor não respondeu em 60 s. Veja erros.txt na pasta do programa."))
-
-    threading.Thread(target=iniciar, daemon=True).start()
+        return 1
     try:
-        root.mainloop()
-    except Exception as ex:  # noqa: BLE001
-        messagebox.showerror(APP, str(ex))
+        if not webbrowser.open(url):
+            raise RuntimeError("webbrowser.open devolveu False")
+    except Exception:  # noqa: BLE001
+        try:
+            os.startfile(url)  # noqa: S606
+        except Exception as ex:  # noqa: BLE001
+            registrar_erro(base, "não foi possível abrir o navegador", f"{url}\n{ex!r}")
+    # fica vivo, invisível, enquanto o servidor viver: é o dono do Job Object (se o lançador morrer, o servidor morre junto);
+    # o servidor se encerra sozinho quando a última aba fechar, e então o lançador termina também.
+    proc.wait()
+    logf.flush()
+    if proc.returncode not in (0, None, -15, 15, 0xC000013A):
+        registrar_erro(base, f"o servidor encerrou com código {proc.returncode}", ultimas_linhas(log_path))
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
